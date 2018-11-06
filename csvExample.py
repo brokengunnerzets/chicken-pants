@@ -1,16 +1,3 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
-#------------------------------------------
-# Lab 2 - GTI770
-# Michael Turcotte
-# AM75540
-#------------------------------------------
-
-
 # Import des libraries necessaires
 from skimage import io, novice
 from PIL import Image
@@ -29,11 +16,13 @@ from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.model_selection import train_test_split, KFold
 
 import numpy as np
-#import cv2
+import cv2
 import operator 
 
 #https://docs.python.org/2/library/csv.html
 import csv
+
+import os
 
 
 #http://scikit-learn.org/stable/modules/neighbors.html
@@ -435,170 +424,110 @@ def crossValidationBayes(trainLabels, trainFeatures, validationLabels, validatio
     print("Cross-Val F1: ")
     print(np.mean(f1ScoreList))
 
-# À modifier pour votre environmement - Galaxy
-#galaxyLabelFolderLocation = 'C:/Users/AP76270/Desktop/galaxy/'
-#galaxyImagesFolderLocation = 'C:/Users/AP76270/Desktop/images/'
-galaxyFeatureVectorFolderLocation = 'C:/Users/turco/gti770/'
+# À modifier pour votre environmement - ensemble B
+imagesFolder = 'C:/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/'
 
-# À modifier pour votre environmement - Email
-emailFeatureVectorFolderLocation = 'C:/Users/turco/gti770/'
+imageFeatureVector = []
 
-# Lecture de fichier
-# galaxyLabelsFid = open(galaxyLabelFolderLocation + 'galaxy_label_data_set.csv', 'r') # option r veut dire read
-# galaxyLabelsTxt = galaxyLabelsFid.readlines() # Cette ligne permet de lire tout le fichier 
-# galaxyLabelsTxt = galaxyLabelsTxt[1:] # Skip for header
-# galaxyLabelsFid.close() # Fermeture de fichier
 
-# featureVectorFid = open(galaxyFeatureVectorFolderLocation + 'galaxy_feature_vectors.csv', 'r') 
-# featureVectorTxt = featureVectorFid.readlines() 
-# featureVectorFid.close() 
 
-emailVectorFid = open(emailFeatureVectorFolderLocation + 'spam.csv', 'r')
-emailVectorTxt = emailVectorFid.readlines()
-emailVectorFid.close()
-
-# Lecture de fichier -> Utiliser après l'extraction des données du TP01
-# Ici on a besoin du CSV 
-galaxyVectorFid = open(galaxyFeatureVectorFolderLocation + 'features.csv', 'r') # option r veut dire read
-galaxyVectorTxt = galaxyVectorFid.readlines() # Cette ligne permet de lire tout le fichier 
-galaxyVectorFid.close() 
-
+# #For use with a CSV
+#
 # featureVectorMap = {}
-
-# # Chargement des donnees remplace iris.data avec nos primitives et replace iris.target avec nos étiquettes
-# iris = load_iris()
-
+#
 # for line in featureVectorTxt:
 #     columns = line.split(',')
 #     featureVectorMap.update({float(columns[0]): columns[1:-1]})
 
-galaxyFeatureVector=[]
-emailFeatureVector=[]
-    
-#
-#
-#
-#
-#------------------Section Extraction de primitives non-CSV (Galaxie)-----------
-#
-#
-#
-#
-    
-# # Zoom to modify for precision
-# zoom1=60
-# zoom2=30
-# zoom3=100
-
-# # Limite pour les tests - à modifier
-# # limit = 100
-
-# for element in galaxyLabelsTxt:
-#     #if (limit <= 0):
-#         #break
-    
-#     element = element[:-1]
-#     element = element.split(',')
-#     img1 = novice.open(galaxyImagesFolderLocation + element[0] +'.jpg') #Chemin a votre image de galaxie
-
-#     #Croping     
-#     y=img1.width
-#     x=img1.height
-#     startx1 = y//2-(zoom1//2)
-#     starty1 = x//2-(zoom1//2)    
-#     startx2 = y//2-(zoom2//2)
-#     starty2 = x//2-(zoom2//2)
-#     startx3 = y//2-(zoom3//2)
-#     starty3 = x//2-(zoom3//2)
-#     img21=(img1[starty1:starty1+zoom1,startx1:startx1+zoom1])
-#     img22=(img1[starty2:starty2+zoom2,startx2:startx2+zoom2])
-#     img23=(img1[starty3:starty3+zoom3,startx3:startx3+zoom3])
-    
-#     redCount = 0
-#     blueCount = 0
-    
-#     #For Color Ratio  # DOESN'T WORK -> divides by zero if you use a ratio
-#     for pixel in img21:
-#         if (pixel.red > pixel.blue):
-#             redCount = redCount + 1
-#         else:
-#             blueCount = blueCount + 1
-    
-#     #For Black and White ratio
-#     img3 = img22.rgb
-#     img4 = Image.fromarray(img3)
-#     img5 = img4.convert('1')
-#     img6 = np.array(img5)
-#     img7 = np.unique(img6,return_counts=True)
-#     img8 = img7[1]
-
-#     #Number of pixels
-#     blackCount = img8[0]
-#     whiteCount = img8[1]
-    
-#     #Circular
-#     img9 = img23.rgb
-#     img10 = Image.fromarray(img9)
-#     img11 = np.array(img10)
-#     img12 = img11[:, :, ::-1].copy() 
-#     img13 = cv2.cvtColor(img12,cv2.COLOR_BGR2GRAY)
-
-#     all_circs = cv2.HoughCircles(img13, cv2.HOUGH_GRADIENT, 0.9,200,param1=50,param2=30,minRadius=30,maxRadius=100)
-#     circular = 0
-    
-#     if isinstance(all_circs,np.ndarray):
-#         circular=1
-#     else:
-#         circular=0
-    
-#     ratio=(blackCount/whiteCount)
-    
-#     # On peut essayer de normalizer nos données avec un z-score s'ils donnent des valeurs vraiment folles
-#     # from scipy import stats
-#     # stats.zscore(featureVector[:,1]) -> pour normaliser les ratios
-#     row = [element[1],ratio,blueCount,circular]
-#     row = row + featureVectorMap.get(int(element[0]))
-
-#     galaxyFeatureVector.append(row)
-#     limit = limit-1
-
-# with open('features.csv', 'w', newline='') as csvfile:
-#     filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-#     for element in galaxyFeatureVector:
-#         filewriter.writerow(element)
-
-
 
 #
 #
-#
-#
-#------------------Section Extraction de primitives (CSV) (Galaxie)-----------
+#------------------Section Extraction d'images -----------
 #
 #
 #
 #
+    
+# Zoom to modify for precision
+zoom1=60
+zoom2=30
+zoom3=100
 
-for line in galaxyVectorTxt:
-    columns = line[:-1]
-    columns = columns.split(',')
-    galaxyFeatureVector.append(columns)
-    
-    
-        
-#
-#
-#
-#
-#------------------Section Extraction de primitives (Email)-----------
-#
-#
-#
-#
-    
-for line in emailVectorTxt:
-    columns = line.split(',')
-    emailFeatureVector.append([int(columns[len(columns)-1])] + columns[0:-1])
+# Limite pour les tests - à modifier
+# limit = 100
+
+for x in os.walk(imagesFolder):
+    directoryname = x[0]
+    for filename in os.listdir(directoryname):
+        img1 = novice.open(imagesFolder + filename)# Chemin a votre image
+
+        #Croping
+        y=img1.width
+        x=img1.height
+        startx1 = y//2-(zoom1//2)
+        starty1 = x//2-(zoom1//2)
+        startx2 = y//2-(zoom2//2)
+        starty2 = x//2-(zoom2//2)
+        startx3 = y//2-(zoom3//2)
+        starty3 = x//2-(zoom3//2)
+        img21=(img1[starty1:starty1+zoom1,startx1:startx1+zoom1])
+        img22=(img1[starty2:starty2+zoom2,startx2:startx2+zoom2])
+        img23=(img1[starty3:starty3+zoom3,startx3:startx3+zoom3])
+
+        redCount = 0
+        blueCount = 0
+
+        #For Color Ratio  # DOESN'T WORK -> divides by zero if you use a ratio
+        for pixel in img21:
+            if (pixel.red > pixel.blue):
+                redCount = redCount + 1
+            else:
+                blueCount = blueCount + 1
+
+        #For Black and White ratio
+        img3 = img22.rgb
+        img4 = Image.fromarray(img3)
+        img5 = img4.convert('1')
+        img6 = np.array(img5)
+        img7 = np.unique(img6,return_counts=True)
+        img8 = img7[1]
+
+        #Number of pixels
+        blackCount = img8[0]
+        whiteCount = img8[1]
+
+        #Circular
+        img9 = img23.rgb
+        img10 = Image.fromarray(img9)
+        img11 = np.array(img10)
+        img12 = img11[:, :, ::-1].copy()
+        img13 = cv2.cvtColor(img12,cv2.COLOR_BGR2GRAY)
+
+        all_circs = cv2.HoughCircles(img13, cv2.HOUGH_GRADIENT, 0.9,200,param1=50,param2=30,minRadius=30,maxRadius=100)
+        circular = 0
+
+        if isinstance(all_circs,np.ndarray):
+            circular=1
+        else:
+            circular=0
+
+        ratio=(blackCount/whiteCount)
+
+        # On peut essayer de normalizer nos données avec un z-score s'ils donnent des valeurs vraiment folles
+        # from scipy import stats
+        # stats.zscore(featureVector[:,1]) -> pour normaliser les ratios
+        row = [element[1],ratio,blueCount,circular]
+        row = row + featureVectorMap.get(int(element[0]))
+
+        imageFeatureVector.append(row)
+        limit = limit-1
+
+with open('features.csv', 'w', newline='') as csvfile:
+    filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    for element in galaxyFeatureVector:
+        filewriter.writerow(element)
+
+
 
 #
 #
@@ -796,4 +725,3 @@ crossValidationBayes(smoothData["trainLabels"]+spiralData["trainLabels"], smooth
 #--------------------------------------------------------------------------------------------------------
 #
 # -------------------------------------END PROGRAM-------------------------------------------------------
-
