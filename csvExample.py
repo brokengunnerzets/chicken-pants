@@ -425,7 +425,8 @@ def crossValidationBayes(trainLabels, trainFeatures, validationLabels, validatio
     print(np.mean(f1ScoreList))
 
 # À modifier pour votre environmement - ensemble B
-imagesFolder = 'C:/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/'
+imagesFolder = "C:/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/"
+print(imagesFolder)
 
 imageFeatureVector = []
 
@@ -456,76 +457,92 @@ zoom3=100
 # Limite pour les tests - à modifier
 # limit = 100
 
-for x in os.walk(imagesFolder):
-    directoryname = x[0]
-    for filename in os.listdir(directoryname):
-        img1 = novice.open(imagesFolder + filename)# Chemin a votre image
+print("Images Folder: ")
+print(imagesFolder)
+
+x = next(os.walk(imagesFolder))[1]
+print("x: ")
+print(x)
+
+for element in x:
+    for filename in os.listdir(imagesFolder + element):
+        print(element)
+        print(filename)
+        print("/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/" + element + "/" + filename)
+        img1 = Image.open("/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/" + element + "/" + filename)# Chemin a votre image
+        img1 = img1.resize((320, 640), Image.ANTIALIAS)
+        img1 = img1.convert('L')
+        #print(ayy)
 
         #Croping
-        y=img1.width
-        x=img1.height
-        startx1 = y//2-(zoom1//2)
-        starty1 = x//2-(zoom1//2)
-        startx2 = y//2-(zoom2//2)
-        starty2 = x//2-(zoom2//2)
-        startx3 = y//2-(zoom3//2)
-        starty3 = x//2-(zoom3//2)
-        img21=(img1[starty1:starty1+zoom1,startx1:startx1+zoom1])
-        img22=(img1[starty2:starty2+zoom2,startx2:startx2+zoom2])
-        img23=(img1[starty3:starty3+zoom3,startx3:startx3+zoom3])
-
-        redCount = 0
-        blueCount = 0
-
-        #For Color Ratio  # DOESN'T WORK -> divides by zero if you use a ratio
-        for pixel in img21:
-            if (pixel.red > pixel.blue):
-                redCount = redCount + 1
-            else:
-                blueCount = blueCount + 1
-
-        #For Black and White ratio
-        img3 = img22.rgb
-        img4 = Image.fromarray(img3)
-        img5 = img4.convert('1')
-        img6 = np.array(img5)
-        img7 = np.unique(img6,return_counts=True)
-        img8 = img7[1]
-
-        #Number of pixels
-        blackCount = img8[0]
-        whiteCount = img8[1]
-
-        #Circular
-        img9 = img23.rgb
-        img10 = Image.fromarray(img9)
-        img11 = np.array(img10)
-        img12 = img11[:, :, ::-1].copy()
-        img13 = cv2.cvtColor(img12,cv2.COLOR_BGR2GRAY)
-
-        all_circs = cv2.HoughCircles(img13, cv2.HOUGH_GRADIENT, 0.9,200,param1=50,param2=30,minRadius=30,maxRadius=100)
-        circular = 0
-
-        if isinstance(all_circs,np.ndarray):
-            circular=1
-        else:
-            circular=0
-
-        ratio=(blackCount/whiteCount)
+        # y=img1.width
+        # x=img1.height
+        # startx1 = y//2-(zoom1//2)
+        # starty1 = x//2-(zoom1//2)
+        # startx2 = y//2-(zoom2//2)
+        # starty2 = x//2-(zoom2//2)
+        # startx3 = y//2-(zoom3//2)
+        # starty3 = x//2-(zoom3//2)
+        # img21=(img1[starty1:starty1+zoom1,startx1:startx1+zoom1])
+        # img22=(img1[starty2:starty2+zoom2,startx2:startx2+zoom2])
+        # img23=(img1[starty3:starty3+zoom3,startx3:startx3+zoom3])
+        #
+        # redCount = 0
+        # blueCount = 0
+        #
+        # #For Color Ratio  # DOESN'T WORK -> divides by zero if you use a ratio
+        # for pixel in img21:
+        #     if (pixel.red > pixel.blue):
+        #         redCount = redCount + 1
+        #     else:
+        #         blueCount = blueCount + 1
+        #
+        # #For Black and White ratio
+        # img3 = img22.rgb
+        # img4 = Image.fromarray(img3)
+        # img5 = img4.convert('1')
+        # img6 = np.array(img5)
+        # img7 = np.unique(img6,return_counts=True)
+        # img8 = img7[1]
+        #
+        # #Number of pixels
+        # blackCount = img8[0]
+        # whiteCount = img8[1]
+        #
+        # #Circular
+        # img9 = img23.rgb
+        # img10 = Image.fromarray(img9)
+        # img11 = np.array(img10)
+        # img12 = img11[:, :, ::-1].copy()
+        # img13 = cv2.cvtColor(img12,cv2.COLOR_BGR2GRAY)
+        #
+        # all_circs = cv2.HoughCircles(img13, cv2.HOUGH_GRADIENT, 0.9,200,param1=50,param2=30,minRadius=30,maxRadius=100)
+        # circular = 0
+        #
+        # if isinstance(all_circs,np.ndarray):
+        #     circular=1
+        # else:
+        #     circular=0
+        #
+        # ratio=(blackCount/whiteCount)
 
         # On peut essayer de normalizer nos données avec un z-score s'ils donnent des valeurs vraiment folles
         # from scipy import stats
-        # stats.zscore(featureVector[:,1]) -> pour normaliser les ratios
-        row = [element[1],ratio,blueCount,circular]
-        row = row + featureVectorMap.get(int(element[0]))
+        # # stats.zscore(featureVector[:,1]) -> pour normaliser les ratios
+        # row = [element[1],ratio,blueCount,circular]
+        # print(row)
+        imageFeatureVector.append(list(img1.getdata()))
+        # print(len(ayy[1]))
+        # for pixel in ayy[1]:
+        #         print(pixel)
 
-        imageFeatureVector.append(row)
-        limit = limit-1
+print(len(imageFeatureVector[0]))
 
-with open('features.csv', 'w', newline='') as csvfile:
-    filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    for element in galaxyFeatureVector:
-        filewriter.writerow(element)
+
+# with open('features.csv', 'w', newline='') as csvfile:
+#     filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+#     for element in galaxyFeatureVector:
+#         filewriter.writerow(element)
 
 
 
@@ -538,190 +555,190 @@ with open('features.csv', 'w', newline='') as csvfile:
 #
 #
 #
-
-#Manipulations des données pour la séparation en apprentissage, validation et test
-
-# Explication de 'splicing': 
-# iris.data[:, :3] veut dire qu'on utilise la totalite des "rows" et seulement 3 colonnes [:, 3]
-# pour utiliser seulement 3 "rows" et la totalite des colonnes on utilise [:3, :]
-emailFeatureVector = np.array(emailFeatureVector)
-galaxyFeatureVector = np.array(galaxyFeatureVector)
-
-spiralFeatures = []
-spiralLabels = []
-
-smoothFeatures = []
-smoothLabels = []
-
-#Séparation par étiquettes
-
-#Séparation des galaxies
-for row in galaxyFeatureVector:
-    if (row[0] == "spiral"):
-        spiralFeatures.append(row[1:])
-        spiralLabels.append(row[0:1])
-    else:
-        smoothFeatures.append(row[1:])
-        smoothLabels.append(row[0:1])
-        
-spamFeatures = []
-spamLabels = []
-
-emailFeatures = []
-emailLabels = []
-
-#Séparation des emails
-for row in emailFeatureVector:
-    if (row[0] == "1"):
-        spamFeatures.append(row[1:])
-        spamLabels.append(row[0:1])
-    else:
-        emailFeatures.append(row[1:])
-        emailLabels.append(row[0:1])
-        
-        
-
-#Séparation de train/valid/test
-spamData = {"trainFeatures" : [], 
-               "trainLabels" : [], 
-               "validFeatures" : [],
-               "validLabels" : [],
-               "testFeatures" : [], 
-               "testLabels" : []
-               }
-
-emailData = {"trainFeatures" : [], 
-           "trainLabels" : [], 
-           "validFeatures" : [],
-           "validLabels" : [],
-           "testFeatures" : [], 
-           "testLabels" : []
-           }
-
-
-smoothData = {"trainFeatures" : [], 
-           "trainLabels" : [], 
-           "validFeatures" : [],
-           "validLabels" : [],
-           "testFeatures" : [], 
-           "testLabels" : []
-           }
-
-
-spiralData = {"trainFeatures" : [], 
-           "trainLabels" : [], 
-           "validFeatures" : [],
-           "validLabels" : [],
-           "testFeatures" : [], 
-           "testLabels" : []
-           }
-
-#Séparation email
-spamData = floatMapTrainValidTest(spamFeatures, spamLabels)
-emailData = floatMapTrainValidTest(emailFeatures, emailLabels)
-
-#Séparation galaxies
-smoothData = floatMapTrainValidTest(smoothFeatures, smoothLabels)
-spiralData = floatMapTrainValidTest(spiralFeatures, spiralLabels)
-
-
-
+#
+# #Manipulations des données pour la séparation en apprentissage, validation et test
+#
+# # Explication de 'splicing':
+# # iris.data[:, :3] veut dire qu'on utilise la totalite des "rows" et seulement 3 colonnes [:, 3]
+# # pour utiliser seulement 3 "rows" et la totalite des colonnes on utilise [:3, :]
+# emailFeatureVector = np.array(emailFeatureVector)
+# galaxyFeatureVector = np.array(galaxyFeatureVector)
+#
+# spiralFeatures = []
+# spiralLabels = []
+#
+# smoothFeatures = []
+# smoothLabels = []
+#
+# #Séparation par étiquettes
+#
+# #Séparation des galaxies
+# for row in galaxyFeatureVector:
+#     if (row[0] == "spiral"):
+#         spiralFeatures.append(row[1:])
+#         spiralLabels.append(row[0:1])
+#     else:
+#         smoothFeatures.append(row[1:])
+#         smoothLabels.append(row[0:1])
+#
+# spamFeatures = []
+# spamLabels = []
+#
+# emailFeatures = []
+# emailLabels = []
+#
+# #Séparation des emails
+# for row in emailFeatureVector:
+#     if (row[0] == "1"):
+#         spamFeatures.append(row[1:])
+#         spamLabels.append(row[0:1])
+#     else:
+#         emailFeatures.append(row[1:])
+#         emailLabels.append(row[0:1])
 #
 #
 #
+# #Séparation de train/valid/test
+# spamData = {"trainFeatures" : [],
+#                "trainLabels" : [],
+#                "validFeatures" : [],
+#                "validLabels" : [],
+#                "testFeatures" : [],
+#                "testLabels" : []
+#                }
 #
-#------------------Section Apprentissage---------------------
+# emailData = {"trainFeatures" : [],
+#            "trainLabels" : [],
+#            "validFeatures" : [],
+#            "validLabels" : [],
+#            "testFeatures" : [],
+#            "testLabels" : []
+#            }
 #
 #
+# smoothData = {"trainFeatures" : [],
+#            "trainLabels" : [],
+#            "validFeatures" : [],
+#            "validLabels" : [],
+#            "testFeatures" : [],
+#            "testLabels" : []
+#            }
 #
 #
-
-
-#Classification des pourriels
-decisionClassifyWithTree(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                        emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                        emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                        "CAS - POURRIELS")
-
-#Classification des galaxies
-decisionClassifyWithTree(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                        smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                        smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                        "CAS - GALAXIES")
-
-
-#Classification des pourriels KNN
-decisionWithKNN(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                        emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                        emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                        "CAS - POURRIELS - KNN")
-
-
-#Classification des galaxies KNN
-decisionWithKNN(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                        smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                        smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                        "CAS - GALAXIES - KNN")
-
-#Classification des pourriels BAYES
-decisionClassifyBayes(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                         "CAS - POURRIELS - BAYES")
-
-#Classification des galaxies BAYES
-decisionClassifyBayes(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                         "CAS - GALAXIES - BAYES")
-
-
+# spiralData = {"trainFeatures" : [],
+#            "trainLabels" : [],
+#            "validFeatures" : [],
+#            "validLabels" : [],
+#            "testFeatures" : [],
+#            "testLabels" : []
+#            }
+#
+# #Séparation email
+# spamData = floatMapTrainValidTest(spamFeatures, spamLabels)
+# emailData = floatMapTrainValidTest(emailFeatures, emailLabels)
+#
+# #Séparation galaxies
+# smoothData = floatMapTrainValidTest(smoothFeatures, smoothLabels)
+# spiralData = floatMapTrainValidTest(spiralFeatures, spiralLabels)
 #
 #
 #
+# #
+# #
+# #
+# #
+# #------------------Section Apprentissage---------------------
+# #
+# #
+# #
+# #
 #
-#------------------Cross Validation-----------------------
+#
+# #Classification des pourriels
+# decisionClassifyWithTree(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                         "CAS - POURRIELS")
+#
+# #Classification des galaxies
+# decisionClassifyWithTree(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                         "CAS - GALAXIES")
 #
 #
+# #Classification des pourriels KNN
+# decisionWithKNN(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                         "CAS - POURRIELS - KNN")
 #
 #
-
-
-print()
-print("----VALIDATION CROISÉE-----")
-print()
-
-crossValidationTree(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                         "CAS - POURRIELS - Arbre")
-
-crossValidationTree(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                        smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                        smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                        "CAS - GALAXIES - Arbre")
-
-crossValidationKNN(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                         5, "CAS - POURRIELS - KNN")
-
-crossValidationKNN(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                        smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                        smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                         3, "CAS - GALAXIES - KNN")
-
-crossValidationBayes(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
-                         emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
-                         emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
-                         "CAS - POURRIELS - BAYES")
-
-crossValidationBayes(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
-                        smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
-                        smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
-                        "CAS - GALAXIES - BAYES")
-
-
-#--------------------------------------------------------------------------------------------------------
+# #Classification des galaxies KNN
+# decisionWithKNN(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                         "CAS - GALAXIES - KNN")
 #
-# -------------------------------------END PROGRAM-------------------------------------------------------
+# #Classification des pourriels BAYES
+# decisionClassifyBayes(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                          emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                          emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                          "CAS - POURRIELS - BAYES")
+#
+# #Classification des galaxies BAYES
+# decisionClassifyBayes(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                          smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                          smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                          "CAS - GALAXIES - BAYES")
+#
+#
+# #
+# #
+# #
+# #
+# #------------------Cross Validation-----------------------
+# #
+# #
+# #
+# #
+#
+#
+# print()
+# print("----VALIDATION CROISÉE-----")
+# print()
+#
+# crossValidationTree(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                          emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                          emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                          "CAS - POURRIELS - Arbre")
+#
+# crossValidationTree(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                         "CAS - GALAXIES - Arbre")
+#
+# crossValidationKNN(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                          emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                          emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                          5, "CAS - POURRIELS - KNN")
+#
+# crossValidationKNN(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                          3, "CAS - GALAXIES - KNN")
+#
+# crossValidationBayes(emailData["trainLabels"]+spamData["trainLabels"], emailData["trainFeatures"]+spamData["trainFeatures"],
+#                          emailData["validLabels"]+spamData["validLabels"], emailData["validFeatures"]+spamData["validFeatures"],
+#                          emailData["testLabels"]+spamData["testLabels"],emailData["testFeatures"]+spamData["testFeatures"],
+#                          "CAS - POURRIELS - BAYES")
+#
+# crossValidationBayes(smoothData["trainLabels"]+spiralData["trainLabels"], smoothData["trainFeatures"]+spiralData["trainFeatures"],
+#                         smoothData["validLabels"]+spiralData["validLabels"], smoothData["validFeatures"]+spiralData["validFeatures"],
+#                         smoothData["testLabels"]+spiralData["testLabels"],smoothData["testFeatures"]+spiralData["testFeatures"],
+#                         "CAS - GALAXIES - BAYES")
+#
+#
+# #--------------------------------------------------------------------------------------------------------
+# #
+# # -------------------------------------END PROGRAM-------------------------------------------------------
