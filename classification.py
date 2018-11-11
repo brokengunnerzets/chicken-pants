@@ -5,8 +5,14 @@ from matplotlib import pyplot as plt
 #http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
 from sklearn import tree
 
+#https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC
+from sklearn.svm import SVC
+
 #https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
 from sklearn.neighbors import KNeighborsClassifier
+
+#https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
+from sklearn.neural_network import MLPClassifier
 
 #http://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
@@ -16,6 +22,7 @@ from sklearn.model_selection import train_test_split, KFold
 
 import numpy as np
 import os
+from NeuralNetworkImp import NeuralNetwork
 
 
 #--------------------------------------------------------------------------------------------------------
@@ -80,7 +87,7 @@ def arrangeLabels(labels):
         newLabels.append(label[0])
     return newLabels
 
-#On utilise ici 4 hyper paramètres pour la validation de nos résultats
+#Exemple d'utilisation des graphiques à travers multiples hyper paramètres
 def decisionClassifyWithTree(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures, case):
 
     #Paramètres du decision tree
@@ -129,7 +136,8 @@ def decisionClassifyWithTree(trainLabels, trainFeatures, validationLabels, valid
     plt.ylabel('Primitive 2 - Accuracy Score')
     plt.show()
 
-def crossValidationTree(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures, case):
+# Pour la validation croisée
+def crossValidationRN(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures, case):
     
     print()
     print(case)
@@ -140,9 +148,8 @@ def crossValidationTree(trainLabels, trainFeatures, validationLabels, validation
     accuracyScoreList = []
     f1ScoreList = []
     
-    kf = KFold(n_splits=10)
+    kf = KFold(n_splits=3)
     for train_index, test_index in kf.split(dataFeatures):
-        
         
         newTrainFeatures = []
         newTrainLabels = []
@@ -157,35 +164,35 @@ def crossValidationTree(trainLabels, trainFeatures, validationLabels, validation
         for index in test_index:
             newTestFeatures.append(dataFeatures[index])
             newTestLabels.append(dataLabels[index])
-        
-        desTree = tree.DecisionTreeClassifier(criterion='entropy', max_depth=10)
 
-        # Apprentissage avec la fonction fit
-        desTree = desTree.fit(newTrainFeatures, newTrainLabels)
-        predictionLabels = desTree.predict(newTestFeatures)
 
-        # Accuracy Score
-        accuracyScoreList.append(desTree.score(newTestFeatures, newTestLabels))
-
-        if (isinstance(validationLabels[0], str) == False):
-            validationLabels = arrangeLabels(validationLabels)
-
-        if (isinstance(predictionLabels[0], str) == False):
-            predictionLabels = arrangeLabels(predictionLabels)
-
-        #f1 score
-        f1ScoreList.append(f1_score(newTestLabels, predictionLabels, average='weighted'))
+        # #TODO Replace with usable code in RN fait maison!
+        #
+        # desTree = tree.DecisionTreeClassifier(criterion='entropy', max_depth=10)
+        #
+        # # Apprentissage avec la fonction fit
+        # desTree = desTree.fit(newTrainFeatures, newTrainLabels)
+        # predictionLabels = desTree.predict(newTestFeatures)
+        #
+        # # Accuracy Score
+        # accuracyScoreList.append(desTree.score(newTestFeatures, newTestLabels))
+        #
+        # if (isinstance(validationLabels[0], str) == False):
+        #     validationLabels = arrangeLabels(validationLabels)
+        #
+        # if (isinstance(predictionLabels[0], str) == False):
+        #     predictionLabels = arrangeLabels(predictionLabels)
+        #
+        # #f1 score
+        # f1ScoreList.append(f1_score(newTestLabels, predictionLabels, average='weighted'))
     
     print("Cross-Val Accuracy: ")   
     print(np.mean(accuracyScoreList))
     print("Cross-Val F1: ")
     print(np.mean(f1ScoreList))
     
-#KNN        
-def decisionWithKNN(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures, case):
-
-    print(case)
-    print()
+#KNN
+def decisionWithKNN(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures):
 
     predictionlabels=[]
 
@@ -197,6 +204,52 @@ def decisionWithKNN(trainLabels, trainFeatures, validationLabels, validationFeat
     print("F1 score : Algorithme KNN avec valeur de K = 3" )
     print(f1_score(validationLabels+testLabels, predictionlabels, average='weighted'))
     print('\n')
+
+
+#SVM
+def decisionWithSVM(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures):
+
+    predictionlabels=[]
+
+    svc = SVC(gamma='auto')
+    svc.fit(trainFeatures, trainLabels)
+    predictionlabels = svc.predict(validationFeatures + testFeatures)
+    print(predictionlabels)
+
+    print("F1 score : Algorithme SVM")
+    print(f1_score(validationLabels+testLabels, predictionlabels, average='weighted'))
+    print('\n')
+
+
+#RN
+def decisionWithNN(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures):
+
+    predictionlabels=[]
+
+    mlp = MLPClassifier()
+    mlp.fit(trainFeatures, trainLabels)
+    predictionlabels = mlp.predict(validationFeatures + testFeatures)
+    print(predictionlabels)
+
+    print("F1 score : Algorithme RN")
+    print(f1_score(validationLabels+testLabels, predictionlabels, average='weighted'))
+    print('\n')
+
+
+#RN fait maison
+def decisionWithNNScratch(trainLabels, trainFeatures, validationLabels, validationFeatures, testLabels, testFeatures):
+
+    # #TODO Correction of RN to work with train labels and train features
+    # predictionlabels=[]
+    #
+    # nn =  NeuralNetwork(3, 4, 1)
+    # nn.train_network(trainFeatures, trainLabels, 10)
+    # predictionlabels = nn.forward_propagated()
+    # print(predictionlabels)
+    #
+    # print("F1 score : Algorithme RN")
+    # print(f1_score(trainLabels, predictionlabels, average='weighted'))
+    # print('\n')
 
 #
 #
@@ -231,7 +284,7 @@ for element in x:
         imageFeatureVector.append(list(img1.getdata()))
         labelVector.append([element])
 
-print(len(imageFeatureVector[0]))
+print(len(imageFeatureVector))
 
 
 # Séparation de train/valid/test
@@ -248,12 +301,11 @@ imagesMap = floatMapTrainValidTest(imageFeatureVector, labelVector)
 
 
 
-
 #
 #
 #
 #
-#------------------Section Apprentissage---------------------
+#------------------Section Classifications---------------------
 #
 #
 #
@@ -262,15 +314,28 @@ imagesMap = floatMapTrainValidTest(imageFeatureVector, labelVector)
 #Classification KNN
 decisionWithKNN(imagesMap["trainLabels"], imagesMap["trainFeatures"],
                 imagesMap["validLabels"], imagesMap["validFeatures"],
-                imagesMap["testLabels"],imagesMap["testFeatures"],
-                        "CAS - KNN")
+                imagesMap["testLabels"],imagesMap["testFeatures"])
 
+#Classification SVM
+decisionWithSVM(imagesMap["trainLabels"], imagesMap["trainFeatures"],
+                imagesMap["validLabels"], imagesMap["validFeatures"],
+                imagesMap["testLabels"],imagesMap["testFeatures"])
+
+#Classification RN
+decisionWithNN(imagesMap["trainLabels"], imagesMap["trainFeatures"],
+                imagesMap["validLabels"], imagesMap["validFeatures"],
+                imagesMap["testLabels"],imagesMap["testFeatures"])
+
+#Classification RN fait maison
+decisionWithNNScratch(imagesMap["trainLabels"], imagesMap["trainFeatures"],
+                imagesMap["validLabels"], imagesMap["validFeatures"],
+                imagesMap["testLabels"],imagesMap["testFeatures"])
 
 #
 #
 #
 #
-#------------------Cross Validation-----------------------
+#------------------Validation Croisée-----------------------
 #
 #
 #
