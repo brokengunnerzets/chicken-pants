@@ -24,7 +24,7 @@ from sklearn.model_selection import train_test_split, KFold
 
 import numpy as np
 import os
-from NeuralNetworkImp import NeuralNetwork
+from NeuralNetworkImpl import NeuralNetworkImpl
 
 
 # --------------------------------------------------------------------------------------------------------
@@ -178,11 +178,12 @@ def decisionWithNNScratch(trainLabels, trainFeatures, validationLabels, validati
     start_time = time.time()
 
     trainLabels = np.asarray(trainLabels)/8
-    trainFeatures = np.asarray(trainFeatures)/np.amax(trainFeatures, axis=0)
+    trainFeatures = np.asarray(trainFeatures)/np.amax(np.asarray(trainFeatures), axis=0)
 
-    nn = NeuralNetwork(204800, 134, 1)
-    nn.train_network(trainFeatures, trainLabels, 100)
-    predictionlabels = nn.forward_propagated
+    nn = NeuralNetworkImpl(204800, 134, 1)
+    nn.define_weights()
+    nn.train_network(trainFeatures, trainLabels, 1)
+    predictionlabels = nn.predict(trainFeatures)
 
     print("RN Train/Predict")
     print("----------%s Seconds-----" % (time.time() - start_time))
@@ -205,7 +206,7 @@ def decisionWithNNScratch(trainLabels, trainFeatures, validationLabels, validati
 #
 
 # À modifier pour votre environmement - ensemble B
-imagesFolder = "C:/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/"
+imagesFolder = "C:/Users/maxi4/chicken-pants/Ensemble_B/"
 
 imageFeatureVector = []
 labelVector =[]
@@ -216,7 +217,7 @@ classNumber = 0
 for element in x:
     classNumber = classNumber + 1
     for filename in os.listdir(imagesFolder + element):
-        img1 = Image.open("/Users/turco/PycharmProjects/chicken-pants/Ensemble_B/" + element + "/" + filename)# Chemin a votre image
+        img1 = Image.open("/Users/maxi4/chicken-pants/Ensemble_B/" + element + "/" + filename)# Chemin a votre image
         img1 = img1.resize((320, 640), Image.ANTIALIAS)
         img1 = img1.convert('L')
         imageFeatureVector.append(list(img1.getdata()))
