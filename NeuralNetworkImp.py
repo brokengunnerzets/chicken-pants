@@ -3,13 +3,12 @@ import numpy;
 
 def activation_function(x):
     # Sigmoid function
-    return numpy.exp(x) / (numpy.exp(x) + 1)
+    return 1 / (1 + numpy.exp(-x))
 
 
 def gradient_function(x):
     # Sigmoid derivative function
-    return activation_function(x)*(1 - activation_function(x))
-
+    return x*(1 - x)
 
 def get_random_weight(x, y):
     return numpy.random.rand(x, y)
@@ -44,21 +43,8 @@ class NeuralNetwork:
 
     def propagate_backward(self, dataset, output):
         self.propagation_error = output - self.forward_propagated
-        self.propagation_difference = gradient_function(self.forward_propagated) * self.propagation_error
-        self.z_hidden_error = numpy.dot(self.propagation_difference, self.output_weight.T)
-        self.z_hidden_difference = gradient_function(self.z_hidden) * self.z_hidden_error
-        self.hidden_weight += numpy.dot(dataset.T, self.z_hidden_difference)
-        self.output_weight += numpy.dot(self.z_hidden.T, self.propagation_error)
-
-
-if __name__ == "__main__":
-    X = numpy.array([[0,0,1],
-                  [0,1,1],
-                  [1,0,1],
-                  [1,1,1]])
-    y = numpy.array([[0],[1],[1],[0]])
-    nn = NeuralNetwork(3, 4, 1)
-
-    nn.train_network(X, y, 100000)
-    print("EXPECTED: " + str(y))
-    print("PREDICTED: " + str(nn.forward_propagated))
+        self.propagation_difference = self.propagation_error * gradient_function(self.forward_propagated)
+        self.z_hidden_error = self.propagation_difference.dot(self.output_weight.T)
+        self.z_hidden_difference = self.z_hidden_error * gradient_function(self.z_hidden)
+        self.hidden_weight += dataset.T.dot(self.z_hidden_difference)
+        self.output_weight += self.z_hidden.T.dot(self.propagation_difference)
